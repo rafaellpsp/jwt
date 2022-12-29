@@ -31,3 +31,24 @@ exports.Signin = async (req, res)=>{
     }
     
 }
+
+exports.Login = async(req, res)=>{
+    const reqData = req.body
+
+    const cons = await User.findOne({
+        attributes:['id','name','email','password'],
+        where:{
+            email:reqData.email
+        }
+    });
+
+    if(cons === null){
+        return res.status(401).json({
+            mensagem:'Dados Invalidos!'
+        })
+    }else{
+        return res.status(200).json({
+            mensagem:'Login realizado!'
+        });
+    }
+}
