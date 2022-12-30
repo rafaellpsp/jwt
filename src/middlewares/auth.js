@@ -6,18 +6,16 @@ const { promisify } = require('util');
 
 module.exports = {
     eAdmin: async function(req, res, next){
-        const authHeader = req.headers.authorization;
-        //console.log(authHeader)
+        const authHeader = req.headers.authorization
+
         if(!authHeader){
-            return res.status(400).json({
+           return res.status(400).json({
                 erro:true,
-                mensagem:"É necessário fazer o login! Falta o token A"
+                mensagem:"Necessário fazer login!"
             })
         }
 
         const [/* bearer */,token] = authHeader.split(' ');
-
-        //console.log(`Token:${token}`);
 
         if(!token){
             return res.status(400).json({
@@ -27,9 +25,16 @@ module.exports = {
         }
 
         try{
-            const decode = await promisify(jwt.verify)(token, env.tokenKey);
-            req.userId = decode;    
-            return next()
+            const decode = await promisify(jwt.verify)(token, env.secret);
+            req.Id = decode.id;    
+            if(decode.perfil == "Administrador"){
+                return next()
+            }else{
+                res.status(400).json({
+                    mensagem:'Você não é administrador'
+                })
+            }
+            
 
         }catch(err){
             return res.status(400).json({
@@ -37,6 +42,5 @@ module.exports = {
                 mensagem:"Necessário fazer login! Token Invalido"
             })
         }
-
     }
 }
